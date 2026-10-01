@@ -50,6 +50,15 @@ sbt "runMain scalendar.ScalendarApp --month 3 --year 2024 --locale fr"
 - `--year <int>`: Specify year to display
 - `--locale <string>` or `-l`: Set locale for internationalization (e.g., 'es' for Spanish, 'fr' for French)
 
+Notes:
+
+- `--year` on its own prints the year view, `--month` on its own uses the current year.
+- `--year-view` takes precedence over `--month` when both are given.
+- Accepted range: months `1`-`12` and years `1900`-`3000`. Invalid values are
+  reported on stderr and the process exits with status `1`.
+- The `Calendar` class itself is not limited to that range; the range is enforced
+  by the command-line interface (see `Calendar.MinYear`/`MaxYear`).
+
 ### Examples
 
 Display March 2024 in English (default):
@@ -117,7 +126,16 @@ To add support for a new language:
 
 1. Create a new properties file in `src/main/resources/scalendar/` named `messages_XX.properties` where `XX` is the language code
 2. Translate all the keys from `messages.properties`
-3. The new locale will be automatically available via the `--locale` option
+3. The new locale is picked up automatically by the `--locale` option for month
+   names, day names, error messages, and the help description/examples (`de`
+   falls back to the built-in English bundle because no `messages_de.properties`
+   exists yet)
+
+Two escaping rules matter when translating:
+
+- `error.invalid.month` and `error.invalid.year` are rendered with `java.text.MessageFormat`,
+  so a literal apostrophe must be doubled (`L''année`)
+- the month, day, and help strings are used verbatim, so a single apostrophe is correct there (`toute l'année`)
 
 Example for German (`messages_de.properties`):
 ```properties
@@ -128,15 +146,15 @@ month.3=März
 day.0=So
 day.1=Mo
 # ... etc
-error.invalid.month=Ungültiger Monat: {0}. Der Monat muss zwischen 1 und 12 liegen.
+error.invalid.month=Ungültiger Monat: {0}. Der Monat muss zwischen {1} und {2} liegen.
 ```
 
 ## Building and Running
 
 ### Prerequisites
 
-- Scala 3.7.3 or later (using modern significant indentation syntax)
-- SBT (Scala Build Tool)
+- Scala 3.8.4 (configured in `scala.sbt`, using modern significant indentation syntax)
+- sbt 1.13.0 (pinned in `project/build.properties`) running on JDK 25 (as in CI)
 
 ### Build
 
@@ -178,12 +196,18 @@ src/
 │       ├── messages_es.properties      # Spanish
 │       └── messages_fr.properties      # French
 └── test/scala/scalendar/
-    ├── CalendarTest.scala     # Unit tests for Calendar class
-    ├── ScalendarAppTest.scala # Tests for command-line interface and i18n
-    └── IntegrationTest.scala  # Integration tests
+    ├── CalendarTest.scala            # Unit tests for the Calendar class
+    ├── LocalizationManagerTest.scala # Tests for the resource bundles and i18n API
+    ├── ScalendarAppTest.scala        # Tests for the command-line interface
+    └── IntegrationTest.scala         # Integration tests and exact output snapshots
 ```
 
-## Features
+Build files: `build.sbt`, `scala.sbt` (compiler options), `project/plugins.sbt`
+and `project/build.properties` (pinned sbt version). CI runs
+`coverage test coverageReport` on JDK 25; `doc/ai/` holds the AI transcripts and
+the remediation plan (`doc/ai/20260930_RemediationPlan.md`).
+
+## API Reference
 
 ### Calendar Class
 
@@ -194,6 +218,10 @@ src/
 - `getDaysInMonth(year, month)`: Get number of days in a month
 - `isLeapYear(year)`: Check if a year is a leap year
 - `getDayOfWeek(year, month, day)`: Get day of week for a date
+
+The companion object exposes the range accepted by the command-line interface:
+`Calendar.MinYear`/`Calendar.MaxYear` (`1900`-`3000`) and
+`Calendar.MinMonth`/`Calendar.MaxMonth` (`1`-`12`).
 
 ### Calendar Factory Methods
 
@@ -206,26 +234,40 @@ src/
 - `getDayName(dayOfWeek)`: Get localized day name  
 - `getInvalidMonthError(month)`: Get localized error message for invalid month
 - `getInvalidYearError(year)`: Get localized error message for invalid year
+- `getAllMonthNames` / `getAllDayNames`: Get all names as an immutable `IndexedSeq`
+- `getHelpDescription` / `getExamplesText`: Get the localized help strings
+- `getCurrentLocale`: Get the locale in use
 - `LocalizationManager.forLanguage(tag)`: Create manager for specific language
+- `LocalizationManager.forLocale(language, country)`: Create manager for a specific locale
 
 ### Command Line Interface
 
-- Argument parsing and validation
-- Error handling for invalid dates
-- Help system
-- Support for various date formats
+- Argument parsing and validation with [mainargs](https://github.com/com-lihaoyi/mainargs)
+- `validateMonth`/`validateYear` return `Either[String, Unit]`, so the failure paths are unit testable
+- Invalid values are reported on stderr with exit status `1`
+- Localized help system (`--help` combines the translated description and examples with the generated option list)
 
 ## Testing
 
 The project includes comprehensive tests:
 
-- **Unit Tests**: Test individual methods and edge cases
-- **Integration Tests**: Test complete workflows and real-world scenarios
-- **Application Tests**: Test command-line argument parsing and validation
+- **Unit Tests** (`CalendarTest`): individual methods and edge cases; every grid row must be exactly 20 characters wide
+- **Localization Tests** (`LocalizationManagerTest`): bundle contents, locale fallback, and error messages for en/es/fr
+- **Application Tests** (`ScalendarAppTest`): option parsing, validation failures through `Either`, and end-to-end output captured with `Console.withOut`
+- **Integration Tests** (`IntegrationTest`): complete workflows plus exact ("golden") output snapshots
+
+Tests run in a forked JVM with the locale pinned to `en_US` (see `build.sbt`), so
+the output assertions do not depend on the machine running them.
 
 Run all tests with:
 ```bash
 sbt test
+```
+
+Coverage is produced with a minimum statement-coverage gate (see `build.sbt`):
+
+```bash
+sbt coverage test coverageReport
 ```
 
 ## Development
@@ -249,7 +291,7 @@ The project follows modern Scala 3 conventions:
 
 ## License
 
-This project is open source. Feel free to use and modify as needed.
+MIT - see [LICENSE](LICENSE), © 2025 LUC COMP 371/471 Prog Language Course.
 
 ## AI Disclosure
 

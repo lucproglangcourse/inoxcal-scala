@@ -91,6 +91,18 @@ class Calendar(private val l10n: LocalizationManager = new LocalizationManager()
   def getLocalizationManager: LocalizationManager = l10n
 
 object Calendar:
+  /** Smallest year accepted by the command-line interface (inclusive). */
+  val MinYear: Int = 1900
+
+  /** Largest year accepted by the command-line interface (inclusive). */
+  val MaxYear: Int = 3000
+
+  /** First month of the year (inclusive). */
+  val MinMonth: Int = 1
+
+  /** Last month of the year (inclusive). */
+  val MaxMonth: Int = 12
+
   /**
    * Create a Calendar with a specific locale
    */

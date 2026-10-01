@@ -25,38 +25,50 @@ class LocalizationManager(locale: Locale = Locale.getDefault):
   /**
    * Get all localized day names in order (Sunday first)
    */
-  def getAllDayNames: Array[String] =
-    (0 to 6).map(getDayName).toArray
+  def getAllDayNames: IndexedSeq[String] =
+    (0 to 6).map(getDayName)
   
   /**
    * Get all localized month names
    */
-  def getAllMonthNames: Array[String] =
-    (1 to 12).map(getMonthName).toArray
+  def getAllMonthNames: IndexedSeq[String] =
+    (1 to 12).map(getMonthName)
   
   /**
    * Get a localized error message for invalid month
    */
-  def getInvalidMonthError(month: Int): String =
-    MessageFormat.format(bundle.getString("error.invalid.month"), month.toString)
+  def getInvalidMonthError(
+      month: Int,
+      min: Int = Calendar.MinMonth,
+      max: Int = Calendar.MaxMonth
+  ): String =
+    MessageFormat.format(
+      bundle.getString("error.invalid.month"),
+      month.toString,
+      min.toString,
+      max.toString
+    )
   
   /**
    * Get a localized error message for invalid year
    */
-  def getInvalidYearError(year: Int): String =
-    MessageFormat.format(bundle.getString("error.invalid.year"), year.toString)
+  def getInvalidYearError(
+      year: Int,
+      min: Int = Calendar.MinYear,
+      max: Int = Calendar.MaxYear
+  ): String =
+    MessageFormat.format(
+      bundle.getString("error.invalid.year"),
+      year.toString,
+      min.toString,
+      max.toString
+    )
   
   /**
    * Get localized help description
    */
   def getHelpDescription: String =
     bundle.getString("help.description")
-  
-  /**
-   * Get localized usage text
-   */
-  def getUsageText: String =
-    bundle.getString("help.usage")
   
   /**
    * Get localized examples text
