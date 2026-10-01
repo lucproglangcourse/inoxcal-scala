@@ -293,6 +293,16 @@ The project follows modern Scala 3 conventions:
 
 MIT - see [LICENSE](LICENSE), © 2025 LUC COMP 371/471 Prog Language Course.
 
+## Warranty
+
+**Guaranteed rust-free.** Scalendar is written in Scala, not Rust, so the only
+thing in this repository that can oxidize is the reader's understanding of
+leap-year rules. There is no borrow checker, but you may borrow any day of the
+month you like, as long as you give it back before midnight. The
+[MIT license](LICENSE) covers everything except genuine corrosion: should your
+copy develop rust, please file an issue with the detected oxide and we will
+prescribe `sbt clean compile`.
+
 ## AI Disclosure
 
 This text contains a mix of original writing and programming with strategic use of ChatGPT via intentional prompting.
