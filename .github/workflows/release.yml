@@ -26,18 +26,18 @@ jobs:
             v[0-9]*.[0-9]*.[0-9]*) ;;
             *) echo "release tags must look like v<version>" >&2; exit 1 ;;
           esac
-          build_version=$(sed -nE 's/^version := "([0-9]+\.[0-9]+\.[0-9]+)"$/\1/p' build.sbt)
-          test -n "$build_version"
-          test "${RELEASE_TAG#v}" = "$build_version"
+          sbt -batch "-DreleaseTag=$RELEASE_TAG" releaseVersionCheck
       - name: Run tests and coverage
-        run: sbt coverage test coverageReport
+        run: sbt -batch "coverage ; test ; coverageReport"
       - name: Build Universal archives
-        run: sbt Universal/packageBin Universal/packageZipTarball
+        run: sbt -batch "Universal/packageBin ; Universal/packageZipTarball"
       - name: Prepare release files
         run: |
           mkdir release
-          cp target/universal/inoxcal-*.zip release/
-          cp target/universal/inoxcal-*.tgz release/
+          find target/out -type f -name 'inoxcal-*.zip' -exec cp {} release/ \;
+          find target/out -type f -name 'inoxcal-*.tgz' -exec cp {} release/ \;
+          test "$(find release -maxdepth 1 -name 'inoxcal-*.zip' | wc -l)" -eq 1
+          test "$(find release -maxdepth 1 -name 'inoxcal-*.tgz' | wc -l)" -eq 1
           for archive in release/*.tgz; do mv "$archive" "${archive%.tgz}.tar.gz"; done
           (cd release && sha256sum inoxcal-*) > release/SHA256SUMS
       - name: Verify release checksums

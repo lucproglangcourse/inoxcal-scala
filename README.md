@@ -177,9 +177,9 @@ error.invalid.month=Ungültiger Monat: {0}. Der Monat muss zwischen {1} und {2} 
 
 ### Prerequisites
 
-- Scala 3.8.4 (configured in `scala.sbt`, using modern significant indentation syntax)
+- Scala 3.8.4 (configured in `build.sbt`, using modern significant indentation syntax)
 - JDK 17 or newer at runtime. JDK 17, 21, and 25 are tested in release CI.
-- sbt 1.13.0 (pinned in `project/build.properties`) for building from source
+- sbt 2.0.9 (pinned in `project/build.properties`) for building from source
 
 ### Build
 
@@ -224,10 +224,11 @@ must be available on `PATH` (or configured through `JAVA_HOME`).
 To build both archives locally:
 
 ```bash
-sbt Universal/packageBin Universal/packageZipTarball
+sbt "Universal/packageBin ; Universal/packageZipTarball"
 ```
 
-The resulting files are written to `target/universal/`.
+The resulting files are written beneath `target/out/` (the exact path includes the
+Scala version and project name).
 
 ### Maintainer Release
 
