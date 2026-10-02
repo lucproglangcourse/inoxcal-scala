@@ -369,6 +369,6 @@ develop rust, please file an issue with the detected oxide and we will prescribe
 ## AI Disclosure
 
 This project was developed with assistance from generative and agentic AI tools,
-including [ChatGPT](https://cline.bot/). AI assistance was used for brainstorming, implementation,
+including [Cline](https://cline.bot/). AI assistance was used for brainstorming, implementation,
 documentation, and code review. Human contributors reviewed and tested the
 resulting work and remain responsible for the final contents of this repository.
