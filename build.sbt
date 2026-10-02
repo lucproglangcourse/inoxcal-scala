@@ -1,6 +1,6 @@
 name := "inoxcal"
 
-version := "0.1"
+version := "0.1.0"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
@@ -13,7 +13,7 @@ Compile / mainClass := Some("inoxcal.InoxcalApp")
 
 // Keep the installed command and Universal distribution names stable for users.
 executableScriptName := "inoxcal"
-Universal / packageName := s"inoxcal-$version"
+Universal / packageName := s"inoxcal-${version.value}"
 Universal / mappings ++= Seq(
   baseDirectory.value / "README.md" -> "README.md",
   baseDirectory.value / "LICENSE" -> "LICENSE"

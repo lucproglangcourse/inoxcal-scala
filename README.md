@@ -232,7 +232,7 @@ The resulting files are written to `target/universal/`.
 ### Maintainer Release
 
 Update `version` in `build.sbt`, commit the change, and push an annotated tag whose
-name is `v<version>` (for example, `v0.2`). The tag must match the sbt version. The
+name is `v<version>` (for example, `v0.1.0`). The tag must match the sbt version. The
 tag-triggered workflow runs tests and coverage, builds both archives, tests the
 extracted packages on Java 17, 21, and 25, writes SHA-256 checksums, and publishes a
 GitHub Release with the archives and checksums. It does not publish from ordinary

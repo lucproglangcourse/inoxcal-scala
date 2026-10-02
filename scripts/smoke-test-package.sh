@@ -9,7 +9,7 @@ case "$archive" in
   *.zip)
     unzip -q "$archive" -d "$workdir"
     ;;
-  *.tar.gz)
+  *.tar.gz|*.tgz)
     tar -xzf "$archive" -C "$workdir"
     ;;
   *)
