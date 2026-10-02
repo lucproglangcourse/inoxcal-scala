@@ -1,7 +1,7 @@
-# Inoxcal - Scala Calendar Utility
+# Inoxcal - Rust-free Calendar Utility Written in Scala
 
 A command-line calendar utility similar to `ncal`, written in Scala. The name nods
-to *inox*, French for "stainless steel" - see [Warranty](#warranty).
+to *inox*, Castilian for "stainless steel" - see [Warranty](#warranty).
 
 ## Features
 
@@ -324,9 +324,9 @@ MIT - see [LICENSE](LICENSE), © 2025 LUC COMP 371/471 Prog Language Course.
 
 ## Warranty
 
-**Guaranteed rust-free.** *Inox* is short for *inoxydable*, French for "stainless
-steel": the word behind the "Inox" stamp on a kitchen sink and in *acier
-inoxydable*. Inoxcal is therefore structurally stainless - it is written in Scala,
+**Guaranteed rust-free.** *Inox* is short for *inoxidable*, Castilian for "stainless
+steel": the word behind the "Inox" stamp on a kitchen sink and in *acero
+inoxidable*. Inoxcal is therefore structurally stainless - it is written in Scala,
 not Rust, so the only thing in this repository that can oxidize is the reader's
 understanding of leap-year rules. There is no borrow checker, but you may borrow
 any day of the month you like, as long as you give it back before midnight. The
