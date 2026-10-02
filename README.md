@@ -4,6 +4,8 @@
 [![Latest GitHub release](https://img.shields.io/github/v/release/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/releases/latest)
 [![Codecov coverage (main)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala/graph/badge.svg?token=cc41rooqor)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala)
 [![License: MIT](https://img.shields.io/github/license/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/blob/main/LICENSE)
+[![Scala Steward: enrollment pending](https://img.shields.io/badge/Scala_Steward-enrollment_pending-orange)](https://github.com/VirtusLab/scala-steward-repos/pull/691)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lucproglangcourse/inoxcal-scala/badge)](https://scorecard.dev/viewer/?uri=github.com/lucproglangcourse/inoxcal-scala)
 
 A command-line calendar utility similar to `ncal`, written in Scala. The name nods
 to *inox*, Castilian for "stainless steel" - see [Warranty](#warranty).
