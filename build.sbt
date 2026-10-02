@@ -31,8 +31,8 @@ lazy val root = (project in file("."))
     executableScriptName := "inoxcal",
     Universal / packageName := s"inoxcal-${version.value}",
     Universal / mappings ++= Seq(
-      fileConverter.value.toVirtualFile((baseDirectory.value / "README.md").toPath) -> "README.md",
-      fileConverter.value.toVirtualFile((baseDirectory.value / "LICENSE").toPath) -> "LICENSE"
+      (baseDirectory.value / "README.md") -> "README.md",
+      (baseDirectory.value / "LICENSE") -> "LICENSE"
     ),
 
     // Run tests with a pinned locale so output assertions do not depend on the
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
     ),
 
     releaseTag := sys.props.getOrElse("releaseTag", ""),
-    releaseVersionCheck := Def.uncached {
+    releaseVersionCheck := {
       val suppliedTag = releaseTag.value
       val expectedVersion = suppliedTag.stripPrefix("v")
       require(
