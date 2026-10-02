@@ -1,4 +1,4 @@
-package scalendar
+package inoxcal
 
 import java.time._
 

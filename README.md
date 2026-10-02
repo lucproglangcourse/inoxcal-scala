@@ -1,6 +1,7 @@
-# Scalendar - Scala Calendar Utility
+# Inoxcal - Scala Calendar Utility
 
-A command-line calendar utility similar to `ncal`, written in Scala.
+A command-line calendar utility similar to `ncal`, written in Scala. The name nods
+to *inox*, French for "stainless steel" - see [Warranty](#warranty).
 
 ## Features
 
@@ -21,25 +22,25 @@ A command-line calendar utility similar to `ncal`, written in Scala.
 sbt run
 
 # Display help
-sbt "runMain scalendar.ScalendarApp --help"
+sbt "runMain inoxcal.InoxcalApp --help"
 
 # Display specific month in current year (e.g., March)
-sbt "runMain scalendar.ScalendarApp --month 3"
+sbt "runMain inoxcal.InoxcalApp --month 3"
 
 # Display specific month and year (e.g., March 2024)
-sbt "runMain scalendar.ScalendarApp --month 3 --year 2024"
+sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024"
 
 # Display entire current year
-sbt "runMain scalendar.ScalendarApp --year-view"
+sbt "runMain inoxcal.InoxcalApp --year-view"
 
 # Display specific year
-sbt "runMain scalendar.ScalendarApp --year-view --year 2024"
+sbt "runMain inoxcal.InoxcalApp --year-view --year 2024"
 
 # Display calendar in Spanish
-sbt "runMain scalendar.ScalendarApp --month 3 --year 2024 --locale es"
+sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --locale es"
 
 # Display calendar in French  
-sbt "runMain scalendar.ScalendarApp --month 3 --year 2024 --locale fr"
+sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --locale fr"
 ```
 
 ### Command Line Options
@@ -99,7 +100,7 @@ Di Lu Ma Me Je Ve Sa
 
 ## Internationalization Support
 
-Scalendar supports multiple languages through Java's ResourceBundle system. The following languages are currently supported:
+Inoxcal supports multiple languages through Java's ResourceBundle system. The following languages are currently supported:
 
 - **English (en)** - Default
 - **Spanish (es)** - Español
@@ -124,7 +125,7 @@ sbt "run --month 3 --year 2024 --locale fr"
 
 To add support for a new language:
 
-1. Create a new properties file in `src/main/resources/scalendar/` named `messages_XX.properties` where `XX` is the language code
+1. Create a new properties file in `src/main/resources/inoxcal/` named `messages_XX.properties` where `XX` is the language code
 2. Translate all the keys from `messages.properties`
 3. The new locale is picked up automatically by the `--locale` option for month
    names, day names, error messages, and the help description/examples (`de`
@@ -180,26 +181,26 @@ sbt test
 sbt stage
 ```
 
-This creates an executable script in `target/universal/stage/bin/scalendar-scala`.
+This creates an executable script in `target/universal/stage/bin/inoxcal-scala`.
 
 ## Project Structure
 
 ```
 src/
 ├── main/
-│   ├── scala/scalendar/
+│   ├── scala/inoxcal/
 │   │   ├── Calendar.scala              # Core calendar logic
-│   │   ├── ScalendarApp.scala         # Command-line interface
-│   │   └── LocalizationManager.scala  # Internationalization support
-│   └── resources/scalendar/
+│   │   ├── InoxcalApp.scala            # Command-line interface
+│   │   └── LocalizationManager.scala   # Internationalization support
+│   └── resources/inoxcal/
 │       ├── messages.properties         # English (default)
 │       ├── messages_es.properties      # Spanish
 │       └── messages_fr.properties      # French
-└── test/scala/scalendar/
-    ├── CalendarTest.scala            # Unit tests for the Calendar class
-    ├── LocalizationManagerTest.scala # Tests for the resource bundles and i18n API
-    ├── ScalendarAppTest.scala        # Tests for the command-line interface
-    └── IntegrationTest.scala         # Integration tests and exact output snapshots
+└── test/scala/inoxcal/
+    ├── CalendarTest.scala              # Unit tests for the Calendar class
+    ├── LocalizationManagerTest.scala   # Tests for the resource bundles and i18n API
+    ├── InoxcalAppTest.scala            # Tests for the command-line interface
+    └── IntegrationTest.scala           # Integration tests and exact output snapshots
 ```
 
 Build files: `build.sbt`, `scala.sbt` (compiler options), `project/plugins.sbt`
@@ -253,7 +254,7 @@ The project includes comprehensive tests:
 
 - **Unit Tests** (`CalendarTest`): individual methods and edge cases; every grid row must be exactly 20 characters wide
 - **Localization Tests** (`LocalizationManagerTest`): bundle contents, locale fallback, and error messages for en/es/fr
-- **Application Tests** (`ScalendarAppTest`): option parsing, validation failures through `Either`, and end-to-end output captured with `Console.withOut`
+- **Application Tests** (`InoxcalAppTest`): option parsing, validation failures through `Either`, and end-to-end output captured with `Console.withOut`
 - **Integration Tests** (`IntegrationTest`): complete workflows plus exact ("golden") output snapshots
 
 Tests run in a forked JVM with the locale pinned to `en_US` (see `build.sbt`), so
@@ -275,7 +276,7 @@ sbt coverage test coverageReport
 ### Adding New Features
 
 1. Add functionality to the `Calendar` class
-2. Update the `ScalendarApp` object for command-line interface changes
+2. Update the `InoxcalApp` object for command-line interface changes
 3. Add corresponding tests
 4. Update this README
 
@@ -295,13 +296,15 @@ MIT - see [LICENSE](LICENSE), © 2025 LUC COMP 371/471 Prog Language Course.
 
 ## Warranty
 
-**Guaranteed rust-free.** Scalendar is written in Scala, not Rust, so the only
-thing in this repository that can oxidize is the reader's understanding of
-leap-year rules. There is no borrow checker, but you may borrow any day of the
-month you like, as long as you give it back before midnight. The
-[MIT license](LICENSE) covers everything except genuine corrosion: should your
-copy develop rust, please file an issue with the detected oxide and we will
-prescribe `sbt clean compile`.
+**Guaranteed rust-free.** *Inox* is short for *inoxydable*, French for "stainless
+steel": the word behind the "Inox" stamp on a kitchen sink and in *acier
+inoxydable*. Inoxcal is therefore structurally stainless - it is written in Scala,
+not Rust, so the only thing in this repository that can oxidize is the reader's
+understanding of leap-year rules. There is no borrow checker, but you may borrow
+any day of the month you like, as long as you give it back before midnight. The
+[MIT license](LICENSE) covers everything except genuine corrosion: should your copy
+develop rust, please file an issue with the detected oxide and we will prescribe
+`sbt clean compile`.
 
 ## AI Disclosure
 

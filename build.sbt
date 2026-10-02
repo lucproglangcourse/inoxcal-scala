@@ -1,4 +1,4 @@
-name := "scalendar-scala"
+name := "inoxcal-scala"
 
 version := "0.1"
 
@@ -8,7 +8,7 @@ libraryDependencies ++= Seq(
 )
 
 // Main class for running the application
-Compile / mainClass := Some("scalendar.ScalendarApp")
+Compile / mainClass := Some("inoxcal.InoxcalApp")
 
 // Run the tests in a forked JVM with a pinned locale, so that output assertions do
 // not depend on the default locale of the machine or of CI (see

@@ -1,15 +1,15 @@
-package scalendar
+package inoxcal
 
 import mainargs.{main, arg, ParserForMethods, Flag}
 import java.time.LocalDate
 
 /**
- * Main application for the Scalendar command-line calendar utility
+ * Main application for the Inoxcal command-line calendar utility
  */
-object ScalendarApp:
+object InoxcalApp:
 
   @main
-  def scalendar(
+  def inoxcal(
     @arg(name = "month", doc = "Month (1-12) to display")
     month: Option[Int] = None,
 

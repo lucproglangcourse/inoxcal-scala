@@ -1,6 +1,6 @@
-# Scalendar remediation plan (2026-09-30)
+# Inoxcal remediation plan (2026-09-30)
 
-This document records the findings of a review of `scalendar-scala` and the
+This document records the findings of a review of `inoxcal-scala` and the
 plan that was agreed to address them. It complements
 `doc/ai/20260827_QualityReview.md`, which is an automated (GitHub Copilot)
 quality review of an earlier revision; some of the issues raised there were
@@ -19,18 +19,18 @@ Scope decisions:
 
 | # | Category | Finding | Where | Severity |
 |---|---|---|---|---|
-| F1 | Portability | Tests depend on the JVM default locale: they assert English month/day names while `Calendar` defaults to `Locale.getDefault`, so they fail on a non-English machine | `CalendarTest.scala`, `IntegrationTest.scala`, `ScalendarAppTest.scala` | High |
-| F2 | Correctness | Validation bounds are duplicated as literals in code *and* in prose inside three bundles, so they can drift | `ScalendarApp.scala`, `messages*.properties` | High |
+| F1 | Portability | Tests depend on the JVM default locale: they assert English month/day names while `Calendar` defaults to `Locale.getDefault`, so they fail on a non-English machine | `CalendarTest.scala`, `IntegrationTest.scala`, `InoxcalAppTest.scala` | High |
+| F2 | Correctness | Validation bounds are duplicated as literals in code *and* in prose inside three bundles, so they can drift | `InoxcalApp.scala`, `messages*.properties` | High |
 | F3 | Consistency | `Calendar` is unbounded (year 1 works) while the CLI rejects years outside `1900..3000`; `IntegrationTest` documents neither | `IntegrationTest.scala` | Medium |
-| F4 | Ergonomics | Validation errors are printed to stdout and `sys.exit(1)` is called inside the validators, so the failure paths cannot be tested | `ScalendarApp.scala` | Medium |
+| F4 | Ergonomics | Validation errors are printed to stdout and `sys.exit(1)` is called inside the validators, so the failure paths cannot be tested | `InoxcalApp.scala` | Medium |
 | F5 | Dead code | `help.*` keys are translated in all three bundles but `getHelpDescription`/`getUsageText`/`getExamplesText` were never called; `--help` printed English mainargs output only. `help.examples` additionally documented positional arguments that mainargs rejects | `LocalizationManager.scala`, `messages*.properties` | Medium |
 | F6 | API | `getAllDayNames`/`getAllMonthNames` returned mutable `Array[String]`; `getAllMonthNames`, `getCurrentLocale`, `forLocale` were untested | `LocalizationManager.scala` | Medium |
-| F7 | Style | Multiple `return`s in `scalendar(...)`; two `Calendar`/`LocalizationManager` instances were allocated when `--locale` was used | `ScalendarApp.scala` | Low |
-| F8 | Tests | Vacuous test (`Option` semantics), duplicated help-text tests, alignment assertion with no lower bound, no golden output test, no test invoked `ScalendarApp.scalendar(...)` end to end | `*Test.scala` | Medium |
+| F7 | Style | Multiple `return`s in `inoxcal(...)`; two `Calendar`/`LocalizationManager` instances were allocated when `--locale` was used | `InoxcalApp.scala` | Low |
+| F8 | Tests | Vacuous test (`Option` semantics), duplicated help-text tests, alignment assertion with no lower bound, no golden output test, no test invoked `InoxcalApp.inoxcal(...)` end to end | `*Test.scala` | Medium |
 | F9 | Build | `sbt-scoverage` runs in CI but there is no coverage gate | `build.sbt` | Low |
 | F10 | Docs | `README.md` had two "## Features" sections, did not document `--year-view` precedence, overstated automatic localization (help was English only), and omitted `scala.sbt`, `doc/ai/`, and the license | `README.md` | Low |
 | F11 | Hygiene | `doc/ai/20260827_QualityReview.{md,json}` are untracked; the JSON is 376 KB of agent logs | `doc/ai/` | Low |
-| F12 | Dead code | mainargs intercepts a leading `--help` (`Parser.runEither`: `args.take(1) == Seq("--help")` prints its own English help and exits 0), so the `help.value` branch of `scalendar(...)` was unreachable from the CLI and `--help` was English-only no matter the locale | `ScalendarApp.scala` | Medium |
+| F12 | Dead code | mainargs intercepts a leading `--help` (`Parser.runEither`: `args.take(1) == Seq("--help")` prints its own English help and exits 0), so the `help.value` branch of `inoxcal(...)` was unreachable from the CLI and `--help` was English-only no matter the locale | `InoxcalApp.scala` | Medium |
 
 Explicitly out of scope: `cal`-style three-months-per-row year view, centering
 month headers for variable-length month names, trimming the review JSON, and
@@ -55,7 +55,7 @@ moving `scalaVersion` into `build.sbt`.
 - [x] P1.1 `validateMonth`/`validateYear` return `Either[String, Unit]`; the
       caller prints to `System.err` and exits non-zero. Failure paths become unit
       testable and errors no longer go to stdout.
-- [x] P1.2 Remove the `return`s in `scalendar(...)`: the whole dispatch is one
+- [x] P1.2 Remove the `return`s in `inoxcal(...)`: the whole dispatch is one
       expression producing `Either[String, String]` that is printed once.
 - [x] P1.3 Build exactly one `Calendar` per invocation
       (`locale.fold(new Calendar)(Calendar.withLanguage)`).
@@ -83,7 +83,7 @@ moving `scalaVersion` into `build.sbt`.
       unbounded, the CLI range is `1900..3000` (asserted through the new `Either` API).
 - [x] P2.4 Added exact-string ("golden") tests for March 2024 and for the year
       view structure.
-- [x] P2.5 Added end-to-end tests that capture `ScalendarApp.scalendar(...)`
+- [x] P2.5 Added end-to-end tests that capture `InoxcalApp.inoxcal(...)`
       output with `Console.withOut` (default, month+year, year view, help, `--locale`).
 - [x] P2.6 Added invalid-input tests through the `Either` API (month 0/13,
       year 1899/3001) asserting both the `Left` and the localized message.
@@ -121,9 +121,9 @@ moving `scalaVersion` into `build.sbt`.
 
 - `sbt test`
 - `sbt coverage test coverageReport`
-- `sbt "runMain scalendar.ScalendarApp --month 3 --year 2024"`
-- `sbt "runMain scalendar.ScalendarApp --locale es --month 3 --year 2024"`
-- `sbt "runMain scalendar.ScalendarApp --help"`
+- `sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024"`
+- `sbt "runMain inoxcal.InoxcalApp --locale es --month 3 --year 2024"`
+- `sbt "runMain inoxcal.InoxcalApp --help"`
 
 ## Follow-ups
 
@@ -135,7 +135,7 @@ moving `scalaVersion` into `build.sbt`.
 
 - Test suite: **45 tests, all passing** (was 30 before this work), in
   `CalendarTest` (13), `IntegrationTest` (8), `LocalizationManagerTest` (9),
-  `ScalendarAppTest` (15).
+  `InoxcalAppTest` (15).
 - Coverage: **96.39% statements / 96.15% branches** (`sbt coverage test
   coverageReport`); the gate is set to 90% / 85%.
 - CLI smoke tests: `--month 3 --year 2024` matches the README golden output,
@@ -144,5 +144,44 @@ moving `scalaVersion` into `build.sbt`.
   `--help --locale es` prints the Spanish description, and `--month 13` prints
   `Invalid month: 13. Month must be between 1 and 12.` on stderr and exits `1`.
 - Files changed: `build.sbt`, `Calendar.scala`, `LocalizationManager.scala`,
-  `ScalendarApp.scala`, the three `messages*.properties` bundles, `README.md`,
+  `InoxcalApp.scala`, the three `messages*.properties` bundles, `README.md`,
   all four test sources (one of them new), plus this document.
+
+## Rename to inoxcal (2026-10-01)
+
+The project was subsequently renamed from `scalendar` to `inoxcal` - *inox* being
+short for *inoxydable*, i.e. stainless / rust-free (see the Warranty section of the
+README). No functionality changed:
+
+| Before | After |
+|---|---|
+| package `scalendar` | package `inoxcal` |
+| `src/main/scala/scalendar/` | `src/main/scala/inoxcal/` |
+| `src/test/scala/scalendar/` | `src/test/scala/inoxcal/` |
+| `src/main/resources/scalendar/` | `src/main/resources/inoxcal/` |
+| `object ScalendarApp` | `object InoxcalApp` (`InoxcalApp.scala`) |
+| `@main def scalendar(...)` | `@main def inoxcal(...)` |
+| `class ScalendarAppTest` | `class InoxcalAppTest` (`InoxcalAppTest.scala`) |
+| bundle base name `scalendar.messages` | `inoxcal.messages` |
+| artifact `scalendar-scala` | `inoxcal-scala` (`build.sbt`) |
+| staged launcher `bin/scalendar-scala` | `bin/inoxcal-scala` |
+| CLI help header `scalendar` | `inoxcal` |
+
+Two consequences worth recording:
+
+- mainargs derives the help header from the `@main` method name, so the assertion
+  in `InoxcalAppTest` had to move from `"scalendar"` to `"inoxcal"` in lockstep
+  with the method rename (see F12 for the related interception behaviour).
+- The `help.*` strings in all three bundles name the program, so they were updated
+  together to avoid a mixed-language program name in `--help`.
+
+There was no `import scalendar.*` anywhere (every file is single-package), so the
+only cross-file name reference was the resource bundle base name.
+
+Historical session transcripts (`doc/ai/20250922.md` and
+`doc/ai/20260827_QualityReview.{md,json}`) were intentionally left unchanged: they
+are records of what happened while the project was still called `scalendar`.
+
+Verification after the rename: `sbt clean compile`, `sbt test` (45 tests, 4
+suites), `sbt coverage test coverageReport`, and the CLI smoke tests (including
+the new `inoxcal` help header and the invalid-month exit path), all green.

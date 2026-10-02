@@ -1,4 +1,4 @@
-package scalendar
+package inoxcal
 
 import java.util.{Locale, ResourceBundle}
 import java.text.MessageFormat
@@ -8,7 +8,7 @@ import java.text.MessageFormat
  */
 class LocalizationManager(locale: Locale = Locale.getDefault):
   
-  private val bundle = ResourceBundle.getBundle("scalendar.messages", locale)
+  private val bundle = ResourceBundle.getBundle("inoxcal.messages", locale)
   
   /**
    * Get a localized month name

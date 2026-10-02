@@ -1,4 +1,4 @@
-package scalendar
+package inoxcal
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -123,9 +123,9 @@ class IntegrationTest extends AnyFunSuite with Matchers:
     calendar.getDaysInMonth(2024, 12) shouldBe 31
 
     // The command-line interface is the layer that enforces the documented range
-    ScalendarApp.validateYear(1, l10n).isLeft shouldBe true
-    ScalendarApp.validateYear(Calendar.MinYear, l10n).isRight shouldBe true
-    ScalendarApp.validateYear(Calendar.MaxYear, l10n).isRight shouldBe true
+    InoxcalApp.validateYear(1, l10n).isLeft shouldBe true
+    InoxcalApp.validateYear(Calendar.MinYear, l10n).isRight shouldBe true
+    InoxcalApp.validateYear(Calendar.MaxYear, l10n).isRight shouldBe true
 
     // Leap year edge cases
     calendar.isLeapYear(2000) shouldBe true  // Divisible by 400

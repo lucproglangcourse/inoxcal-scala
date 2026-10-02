@@ -1,4 +1,4 @@
-package scalendar
+package inoxcal
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -11,11 +11,11 @@ import mainargs.{ParserForMethods, Flag}
  * against a calendar built the same way as the application builds it, so the suite
  * does not depend on the locale of the machine running the tests.
  */
-class ScalendarAppTest extends AnyFunSuite with Matchers:
+class InoxcalAppTest extends AnyFunSuite with Matchers:
 
   private val l10n = new LocalizationManager(java.util.Locale.ENGLISH)
 
-  /** Calendar using the same locale resolution as `ScalendarApp` by default. */
+  /** Calendar using the same locale resolution as `InoxcalApp` by default. */
   private val defaultCalendar = new Calendar
 
   /** Capture what `body` prints to stdout, normalized to "\n" line endings. */
@@ -26,30 +26,30 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     buffer.toString("UTF-8").replace("\r\n", "\n")
 
   test("mainargs parser should describe every supported option"):
-    val helpText = ParserForMethods(ScalendarApp).helpText()
+    val helpText = ParserForMethods(InoxcalApp).helpText()
 
-    helpText should include("scalendar")
+    helpText should include("inoxcal")
     helpText should include("month")
     helpText should include("year-view")
     helpText should include("locale")
     helpText should include("help")
 
   test("localized help should add the translated description and examples"):
-    val englishHelp = ScalendarApp.localizedHelp(l10n)
+    val englishHelp = InoxcalApp.localizedHelp(l10n)
     englishHelp should include(l10n.getHelpDescription)
     englishHelp should include(l10n.getExamplesText)
     englishHelp should include("year-view")
 
-    val spanishHelp = ScalendarApp.localizedHelp(LocalizationManager.forLanguage("es"))
+    val spanishHelp = InoxcalApp.localizedHelp(LocalizationManager.forLanguage("es"))
     spanishHelp should include("utilidad de calendario")
     spanishHelp should include("--year-view")
 
   test("month validation should accept 1-12 and reject everything else"):
     for month <- Calendar.MinMonth to Calendar.MaxMonth do
-      ScalendarApp.validateMonth(month, l10n).isRight shouldBe true
+      InoxcalApp.validateMonth(month, l10n).isRight shouldBe true
 
-    ScalendarApp.validateMonth(0, l10n).isLeft shouldBe true
-    ScalendarApp.validateMonth(13, l10n) match
+    InoxcalApp.validateMonth(0, l10n).isLeft shouldBe true
+    InoxcalApp.validateMonth(13, l10n) match
       case Left(message) =>
         message should include("13")
         message should include("between 1 and 12")
@@ -60,10 +60,10 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
 
   test("year validation should accept the documented range and reject everything else"):
     for year <- Seq(Calendar.MinYear, 2024, Calendar.MaxYear) do
-      ScalendarApp.validateYear(year, l10n).isRight shouldBe true
+      InoxcalApp.validateYear(year, l10n).isRight shouldBe true
 
-    ScalendarApp.validateYear(1899, l10n).isLeft shouldBe true
-    ScalendarApp.validateYear(3001, l10n) match
+    InoxcalApp.validateYear(1899, l10n).isLeft shouldBe true
+    InoxcalApp.validateYear(3001, l10n) match
       case Left(message) =>
         message should include("3001")
         message should include("between 1900 and 3000")
@@ -82,30 +82,30 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     year2024 should include("December")
 
   test("running without arguments should print the current month"):
-    val output = captureOut(ScalendarApp.scalendar())
+    val output = captureOut(InoxcalApp.inoxcal())
 
     output shouldBe s"${defaultCalendar.displayCurrentMonth()}\n"
 
   test("running with a month and a year should print that month"):
-    val output = captureOut(ScalendarApp.scalendar(month = Some(3), year = Some(2024)))
+    val output = captureOut(InoxcalApp.inoxcal(month = Some(3), year = Some(2024)))
 
     output shouldBe s"${defaultCalendar.displayMonth(2024, 3)}\n"
     output should include("March 2024")
 
   test("running with only a month should use the current year"):
     val currentYear = LocalDate.now().getYear
-    val output = captureOut(ScalendarApp.scalendar(month = Some(3)))
+    val output = captureOut(InoxcalApp.inoxcal(month = Some(3)))
 
     output shouldBe s"${defaultCalendar.displayMonth(currentYear, 3)}\n"
 
   test("running with only a year should print the whole year"):
-    val output = captureOut(ScalendarApp.scalendar(year = Some(2024)))
+    val output = captureOut(InoxcalApp.inoxcal(year = Some(2024)))
 
     output shouldBe s"${defaultCalendar.displayYear(2024)}\n"
 
   test("--year-view should take precedence over --month"):
     val output = captureOut(
-      ScalendarApp.scalendar(month = Some(3), year = Some(2024), yearView = Flag(true))
+      InoxcalApp.inoxcal(month = Some(3), year = Some(2024), yearView = Flag(true))
     )
 
     output shouldBe s"${defaultCalendar.displayYear(2024)}\n"
@@ -113,7 +113,7 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
 
   test("--locale should translate the output"):
     val output = captureOut(
-      ScalendarApp.scalendar(month = Some(3), year = Some(2024), locale = Some("es"))
+      InoxcalApp.inoxcal(month = Some(3), year = Some(2024), locale = Some("es"))
     )
 
     output shouldBe s"${Calendar.withLanguage("es").displayMonth(2024, 3)}\n"
@@ -121,30 +121,30 @@ class ScalendarAppTest extends AnyFunSuite with Matchers:
     output should include("Do Lu Ma Mi Ju Vi Sa")
 
   test("--help should print the localized help with the option list"):
-    val output = captureOut(ScalendarApp.scalendar(help = Flag(true)))
+    val output = captureOut(InoxcalApp.inoxcal(help = Flag(true)))
 
     output should include(l10n.getHelpDescription)
     output should include(l10n.getExamplesText)
     output should include("year-view")
 
   test("a leading --help should print the localized help instead of mainargs help"):
-    val output = captureOut(ScalendarApp.main(Array("--help")))
+    val output = captureOut(InoxcalApp.main(Array("--help")))
 
     output should include(l10n.getHelpDescription)
     output should include(l10n.getExamplesText)
     output should include("year-view")
 
   test("--help should honor the requested locale"):
-    val output = captureOut(ScalendarApp.main(Array("--help", "--locale", "es")))
+    val output = captureOut(InoxcalApp.main(Array("--help", "--locale", "es")))
 
     output should include("utilidad de calendario")
     output should include("--year-view")
 
-    val longForm = captureOut(ScalendarApp.main(Array("--help", "--locale=fr")))
+    val longForm = captureOut(InoxcalApp.main(Array("--help", "--locale=fr")))
     longForm should include("utilitaire de calendrier")
 
   test("-h should print the localized help as well"):
-    val output = captureOut(ScalendarApp.main(Array("-h")))
+    val output = captureOut(InoxcalApp.main(Array("-h")))
 
     output should include(l10n.getHelpDescription)
     output should include("year-view")
