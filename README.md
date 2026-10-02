@@ -178,7 +178,8 @@ error.invalid.month=Ungültiger Monat: {0}. Der Monat muss zwischen {1} und {2} 
 ### Prerequisites
 
 - Scala 3.8.4 (configured in `scala.sbt`, using modern significant indentation syntax)
-- sbt 1.13.0 (pinned in `project/build.properties`) running on JDK 25 (as in CI)
+- JDK 17 or newer at runtime. JDK 17, 21, and 25 are tested in release CI.
+- sbt 1.13.0 (pinned in `project/build.properties`) for building from source
 
 ### Build
 
@@ -204,7 +205,38 @@ sbt test
 sbt stage
 ```
 
-This creates an executable script in `target/universal/stage/bin/inoxcal-scala`.
+This creates an executable script in `target/universal/stage/bin/inoxcal`.
+
+### Install a Distribution Archive
+
+Release archives are named `inoxcal-<version>.zip` and `inoxcal-<version>.tar.gz`.
+Download either archive from the project's GitHub Release, extract it, and run:
+
+```bash
+./inoxcal-<version>/bin/inoxcal --help
+./inoxcal-<version>/bin/inoxcal 2024
+```
+
+The archive includes this README, the MIT license, the `inoxcal` launcher, and all
+runtime dependencies. No Scala or sbt installation is needed, but Java 17 or newer
+must be available on `PATH` (or configured through `JAVA_HOME`).
+
+To build both archives locally:
+
+```bash
+sbt Universal/packageBin Universal/packageZipTarball
+```
+
+The resulting files are written to `target/universal/`.
+
+### Maintainer Release
+
+Update `version` in `build.sbt`, commit the change, and push an annotated tag whose
+name is `v<version>` (for example, `v0.2`). The tag must match the sbt version. The
+tag-triggered workflow runs tests and coverage, builds both archives, tests the
+extracted packages on Java 17, 21, and 25, writes SHA-256 checksums, and publishes a
+GitHub Release with the archives and checksums. It does not publish from ordinary
+branch pushes or pull requests.
 
 ## Project Structure
 
@@ -336,6 +368,7 @@ develop rust, please file an issue with the detected oxide and we will prescribe
 
 ## AI Disclosure
 
-This text contains a mix of original writing and programming with strategic use of ChatGPT via intentional prompting.
-We may also make some prompts and analyses available, similar to what my colleagues have done for their recent ongoing study of ChatGPT and Systems Programming.
-See also https://doi.org/10.6084/m9.figshare.22257274.
+This project was developed with assistance from generative and agentic AI tools,
+including [ChatGPT](https://cline.bot/). AI assistance was used for brainstorming, implementation,
+documentation, and code review. Human contributors reviewed and tested the
+resulting work and remain responsible for the final contents of this repository.

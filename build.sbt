@@ -1,4 +1,4 @@
-name := "inoxcal-scala"
+name := "inoxcal"
 
 version := "0.1"
 
@@ -10,6 +10,14 @@ libraryDependencies ++= Seq(
 
 // Main class for running the application
 Compile / mainClass := Some("inoxcal.InoxcalApp")
+
+// Keep the installed command and Universal distribution names stable for users.
+executableScriptName := "inoxcal"
+Universal / packageName := s"inoxcal-$version"
+Universal / mappings ++= Seq(
+  baseDirectory.value / "README.md" -> "README.md",
+  baseDirectory.value / "LICENSE" -> "LICENSE"
+)
 
 // Run the tests in a forked JVM with a pinned locale, so that output assertions do
 // not depend on the default locale of the machine or of CI (see
