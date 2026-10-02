@@ -1,12 +1,13 @@
 lazy val releaseVersionCheck = taskKey[Unit]("Validate the release tag against the effective sbt version")
 lazy val releaseTag = settingKey[String]("Release tag supplied by the release workflow")
 
+import sbtrelease.ReleaseStateTransformations.*
+
 lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
   .settings(
     // Project metadata and Scala compiler policy.
     name := "inoxcal",
-    version := "0.1.0",
     scalaVersion := "3.8.4",
     scalacOptions ++= Seq(
       "-deprecation",
@@ -43,6 +44,20 @@ lazy val root = (project in file("."))
     coverageMinimumStmtTotal := 90,
     coverageMinimumBranchTotal := 85,
     coverageFailOnMinimum := true,
+
+    // Let sbt-release manage version.sbt, commits, and tags. Archive publication
+    // remains the responsibility of the tag-triggered GitHub Actions workflow.
+    releaseProcess := Seq(
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      setNextVersion,
+      commitNextVersion
+    ),
 
     releaseTag := sys.props.getOrElse("releaseTag", ""),
     releaseVersionCheck := Def.uncached {
