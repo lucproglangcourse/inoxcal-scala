@@ -227,19 +227,81 @@ To build both archives locally:
 sbt "Universal/packageBin ; Universal/packageZipTarball"
 ```
 
-The resulting files are written beneath `target/out/` (the exact path includes the
-Scala version and project name).
+The resulting files are written beneath `target/universal/`.
 
-### Maintainer Release
+Create a release from an up-to-date, clean `main` checkout. The release process
+creates the release commit and annotated tag locally; it does not push changes or
+publish artifacts itself.
 
-Run `sbt release with-defaults` to select the release and next development versions,
-commit the version file, and create the annotated `v<version>` tag (for example,
-`v0.1.2`). The release process deliberately does not publish Maven artifacts or push
-changes; push the resulting commits and tag to trigger the GitHub Actions workflow.
-The tag-triggered workflow runs tests and coverage, builds both archives, tests the
-extracted packages on Java 17, 21, and 25, writes SHA-256 checksums, and publishes a
-GitHub Release with the archives and checksums. It does not publish from ordinary
-branch pushes or pull requests.
+#### 1. Update and validate the checkout
+
+```bash
+git switch main
+git pull --ff-only origin main
+git status --short
+```
+
+The working tree should be clean before continuing. Run the complete local coverage
+check before creating a release:
+
+```bash
+sbt -batch "clean ; coverage ; test ; coverageReport"
+test -s target/scala-3.8.4/scoverage-report/scoverage.xml
+```
+
+The test command must run a nonzero number of tests and report that all tests passed.
+Coverage must meet the configured minimums of 90% statement coverage and 85% branch
+coverage.
+
+#### 2. Create the release commit and tag
+
+Replace the example versions below with the next release and development versions:
+
+```bash
+sbt "release release-version 0.1.4 next-version 0.1.5-SNAPSHOT"
+```
+
+This runs the configured sbt-release process, which checks snapshot dependencies,
+cleans and tests the project, sets and commits the release version, creates the
+annotated `v0.1.4` tag, then commits the next development version. The tag points to
+the release commit; `main` advances to the next snapshot commit.
+
+Use explicit versions rather than blindly using `release with-defaults` when the
+current version is already a released version. Explicit versions make it clear that
+the release tag will be new rather than repeating an existing tag.
+
+Inspect the result before pushing:
+
+```bash
+git log -3 --oneline --decorate
+git show v0.1.4:version.sbt
+git status --short
+```
+
+Confirm that the tag contains the release version and that the working tree is clean.
+
+#### 3. Push the release
+
+Push the branch and only the intended tag:
+
+```bash
+git push origin main
+git push origin v0.1.4
+```
+
+Avoid `git push --tags`, which could publish unrelated local tags.
+
+#### 4. Wait for GitHub Actions
+
+Pushing the tag triggers the `Tagged Release` workflow. It validates the tag against
+the sbt version, reruns tests and coverage, builds the ZIP and tar.gz archives,
+verifies SHA-256 checksums, and smoke-tests both archives on Java 17, 21, and 25.
+After those jobs pass, the workflow publishes the GitHub Release with the archives
+and checksum file.
+
+The release is complete only after the workflow succeeds and the GitHub Release is
+visible. If the workflow fails, inspect and fix the cause rather than moving or
+overwriting the published tag.
 
 ## Project Structure
 
