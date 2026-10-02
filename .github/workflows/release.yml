@@ -34,8 +34,8 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir release
-          find target/out -type f -name 'inoxcal-*.zip' -exec cp {} release/ \;
-          find target/out -type f -name 'inoxcal-*.tgz' -exec cp {} release/ \;
+          find target/universal -type f -name 'inoxcal-*.zip' -exec cp {} release/ \;
+          find target/universal -type f -name 'inoxcal-*.tgz' -exec cp {} release/ \;
           test "$(find release -maxdepth 1 -name 'inoxcal-*.zip' | wc -l)" -eq 1
           test "$(find release -maxdepth 1 -name 'inoxcal-*.tgz' | wc -l)" -eq 1
           for archive in release/*.tgz; do mv "$archive" "${archive%.tgz}.tar.gz"; done
