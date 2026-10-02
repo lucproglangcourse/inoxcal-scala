@@ -32,6 +32,9 @@ class InoxcalAppTest extends AnyFunSuite with Matchers:
     helpText should include("month")
     helpText should include("year-view")
     helpText should include("locale")
+    helpText should include("starting-day")
+    helpText should include("week-numbers")
+    helpText should include("color")
     helpText should include("help")
 
   test("localized help should add the translated description and examples"):
@@ -72,6 +75,18 @@ class InoxcalAppTest extends AnyFunSuite with Matchers:
     l10n.getInvalidYearError(3001) should include("3001")
     l10n.getInvalidYearError(3001) should include("between 1900 and 3000")
 
+  test("starting-day validation should accept Sunday through Saturday"):
+    for startingDay <- Calendar.MinStartingDay to Calendar.MaxStartingDay do
+      InoxcalApp.validateStartingDay(startingDay, l10n).isRight shouldBe true
+
+    InoxcalApp.validateStartingDay(-1, l10n) match
+      case Left(message) =>
+        message should include("-1")
+        message should include("between 0 and 6")
+      case Right(_) => fail("starting day -1 should have been rejected")
+
+    InoxcalApp.validateStartingDay(7, l10n).isLeft shouldBe true
+
   test("Calendar methods should be accessible"):
     val march2024 = defaultCalendar.displayMonth(2024, 3)
     march2024 should include("March 2024")
@@ -111,6 +126,16 @@ class InoxcalAppTest extends AnyFunSuite with Matchers:
     output shouldBe s"${defaultCalendar.displayYear(2024)}\n"
     output should include("December")
 
+  test("positional year should print the whole year"):
+    val output = captureOut(InoxcalApp.inoxcal(positionalYear = Some(2024)))
+
+    output shouldBe s"${defaultCalendar.displayYear(2024)}\n"
+
+  test("positional and named years should be rejected together"):
+    InoxcalApp.validateYearSources(Some(2024), Some(2025), l10n) match
+      case Left(message) => message should include("either positionally")
+      case Right(_) => fail("both year forms should have been rejected")
+
   test("--locale should translate the output"):
     val output = captureOut(
       InoxcalApp.inoxcal(month = Some(3), year = Some(2024), locale = Some("es"))
@@ -119,6 +144,20 @@ class InoxcalAppTest extends AnyFunSuite with Matchers:
     output shouldBe s"${Calendar.withLanguage("es").displayMonth(2024, 3)}\n"
     output should include("Marzo 2024")
     output should include("Do Lu Ma Mi Ju Vi Sa")
+
+  test("starting day, week numbers, and color flags should be accepted"):
+    val output = captureOut(
+      InoxcalApp.inoxcal(
+        month = Some(3),
+        year = Some(2024),
+        startingDay = 1,
+        weekNumbers = Flag(true),
+        color = Flag(true)
+      )
+    )
+
+    output should include("Wk Mo Tu We Th Fr Sa Su")
+    output should include(" 9")
 
   test("--help should print the localized help with the option list"):
     val output = captureOut(InoxcalApp.inoxcal(help = Flag(true)))

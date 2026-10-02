@@ -41,6 +41,26 @@ class CalendarTest extends AnyFunSuite with Matchers:
     val result = calendar.displayMonth(2024, 3)
     result should include("Su Mo Tu We Th Fr Sa")
 
+  test("monthView should rotate weekdays and place dates under the rotated header"):
+    val view = calendar.monthView(2024, 3, startingDay = 1)
+
+    view.weekdays shouldBe Vector(1, 2, 3, 4, 5, 6, 0)
+    view.weeks.head.days.head shouldBe None
+    view.weeks.head.days(4).map(_.toString) shouldBe Some("2024-03-01")
+    calendar.displayMonth(2024, 3, startingDay = 1, weekNumbers = false) should include("Mo Tu We Th Fr Sa Su")
+
+  test("week-number rendering should include ISO week numbers"):
+    val result = calendar.displayMonth(2024, 3, startingDay = 1, weekNumbers = true)
+
+    result should include("Wk Mo Tu We Th Fr Sa Su")
+    result should include(" 9")
+
+  test("colored rendering should use TamboUI ANSI styles"):
+    val colored = CalendarTextRenderer.renderMonthColored(calendar.monthView(2024, 3))
+
+    colored should include("\u001b[")
+    colored should include("March 2024")
+
   test("displayMonth should format March 2024 correctly"):
     val result = calendar.displayMonth(2024, 3)
     val lines = result.split("\n")

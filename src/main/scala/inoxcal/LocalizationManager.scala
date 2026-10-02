@@ -63,6 +63,17 @@ class LocalizationManager(locale: Locale = Locale.getDefault):
       min.toString,
       max.toString
     )
+
+  def getInvalidStartingDayError(startingDay: Int): String =
+    MessageFormat.format(
+      bundle.getString("error.invalid.starting-day"),
+      startingDay.toString,
+      Calendar.MinStartingDay.toString,
+      Calendar.MaxStartingDay.toString
+    )
+
+  def getConflictingYearError: String =
+    bundle.getString("error.conflicting.year")
   
   /**
    * Get localized help description

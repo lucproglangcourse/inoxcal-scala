@@ -11,14 +11,14 @@ class Calendar(private val l10n: LocalizationManager = new LocalizationManager()
    * Display a calendar for the specified month and year
    */
   def displayMonth(year: Int, month: Int): String =
-    val monthName = l10n.getMonthName(month)
-    val header = s"    $monthName $year"
-    
-    val daysOfWeek = l10n.getAllDayNames.mkString(" ")
-    
-    val calendar = buildMonthGrid(year, month)
-    
-    s"$header\n$daysOfWeek\n$calendar"
+    CalendarTextRenderer.renderMonth(monthView(year, month))
+
+  /**
+   * Display a calendar with a rotated first weekday and optional week numbers.
+   * `startingDay` uses Sunday = 0 through Saturday = 6.
+   */
+  def displayMonth(year: Int, month: Int, startingDay: Int, weekNumbers: Boolean): String =
+    CalendarTextRenderer.renderMonth(monthView(year, month, startingDay, weekNumbers))
   
   /**
    * Display a calendar for the current month
@@ -34,6 +34,14 @@ class Calendar(private val l10n: LocalizationManager = new LocalizationManager()
     val header = s"                             $year\n"
     val months = (1 to 12).map(month => displayMonth(year, month)).mkString("\n\n")
     header + months
+
+  /** Display a year with the requested calendar layout options. */
+  def displayYear(year: Int, startingDay: Int, weekNumbers: Boolean): String =
+    val header = s"                             $year\n"
+    val months = (1 to 12)
+      .map(month => displayMonth(year, month, startingDay, weekNumbers))
+      .mkString("\n\n")
+    header + months
   
   /**
    * Display the current year calendar
@@ -42,30 +50,25 @@ class Calendar(private val l10n: LocalizationManager = new LocalizationManager()
     val currentYear = LocalDate.now().getYear
     displayYear(currentYear)
   
-  /**
-   * Build the grid of days for a given month
-   */
-  private def buildMonthGrid(year: Int, month: Int): String =
+  /** Build structured calendar data for a month. */
+  def monthView(year: Int, month: Int, startingDay: Int = 0, weekNumbers: Boolean = false): MonthView =
+    Calendar.validateStartingDay(startingDay)
     val firstDay = LocalDate.of(year, month, 1)
     val lastDay = firstDay.plusMonths(1).minusDays(1)
     val daysInMonth = lastDay.getDayOfMonth
-    
-    // Get the day of week for the first day (0 = Sunday, 6 = Saturday)
     val firstDayOfWeek = firstDay.getDayOfWeek.getValue % 7
-    
-    val grid = Array.fill(6)(Array.fill(7)("  "))
-    
-    // Fill in the days
-    var currentDay = 1
-    for week <- 0 until 6; day <- 0 until 7 do
-      val dayIndex = week * 7 + day
-      if dayIndex >= firstDayOfWeek && currentDay <= daysInMonth then
-        grid(week)(day) = f"$currentDay%2d"
-        currentDay += 1
-    
-    // Convert grid to string, removing empty trailing weeks
-    val nonEmptyWeeks = grid.takeWhile(_.exists(_ != "  "))
-    nonEmptyWeeks.map(_.mkString(" ")).mkString("\n")
+    val offset = (firstDayOfWeek - startingDay + 7) % 7
+    val cells = Vector.tabulate(((offset + daysInMonth + 6) / 7) * 7) { index =>
+      val day = index - offset + 1
+      if day >= 1 && day <= daysInMonth then Some(LocalDate.of(year, month, day)) else None
+    }
+    val weeks = cells.grouped(7).toVector
+    val weekdays = (0 until 7).map(day => (startingDay + day) % 7).toVector
+    val rows = weeks.map { week =>
+      val lastInMonthDate = week.reverse.collectFirst { case Some(date) => date }
+      MonthWeek(week, lastInMonthDate.map(_.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR)))
+    }
+    MonthView(year, month, l10n.getMonthName(month), weekdays, rows, weekNumbers, l10n)
   
   /**
    * Get number of days in a month
@@ -103,6 +106,18 @@ object Calendar:
   /** Last month of the year (inclusive). */
   val MaxMonth: Int = 12
 
+  /** First weekday value accepted by the CLI (Sunday). */
+  val MinStartingDay: Int = 0
+
+  /** Last weekday value accepted by the CLI (Saturday). */
+  val MaxStartingDay: Int = 6
+
+  def validateStartingDay(startingDay: Int): Unit =
+    require(
+      startingDay >= MinStartingDay && startingDay <= MaxStartingDay,
+      s"Starting day must be between $MinStartingDay and $MaxStartingDay."
+    )
+
   /**
    * Create a Calendar with a specific locale
    */
@@ -114,3 +129,15 @@ object Calendar:
    */
   def withLanguage(languageTag: String): Calendar =
     new Calendar(LocalizationManager.forLanguage(languageTag))
+
+case class MonthWeek(days: Vector[Option[java.time.LocalDate]], weekNumber: Option[Int])
+
+case class MonthView(
+    year: Int,
+    month: Int,
+    monthName: String,
+    weekdays: Vector[Int],
+    weeks: Vector[MonthWeek],
+    weekNumbers: Boolean,
+    l10n: LocalizationManager
+)

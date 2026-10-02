@@ -9,6 +9,10 @@ to *inox*, French for "stainless steel" - see [Warranty](#warranty).
 - Display specific month and year
 - Display entire year calendar
 - Leap year support
+- Optional positional year argument
+- Configurable starting weekday (`--starting-day 0..6`)
+- Optional ISO week numbers (`-w`, `--week-numbers`)
+- Optional TamboUI-colored output (`-c`, `--color`)
 - **Internationalization (i18n) support** - Month names, day names, and error messages in multiple languages
 - Clean, formatted output similar to traditional Unix cal/ncal utilities
 - **Configurable localization** via command-line options
@@ -36,6 +40,15 @@ sbt "runMain inoxcal.InoxcalApp --year-view"
 # Display specific year
 sbt "runMain inoxcal.InoxcalApp --year-view --year 2024"
 
+# Display a year using the positional argument
+sbt "runMain inoxcal.InoxcalApp 2024"
+
+# Start weeks on Monday and show ISO week numbers
+sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --starting-day 1 --week-numbers"
+
+# Enable TamboUI-colored output when running in a real terminal
+sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --color"
+
 # Display calendar in Spanish
 sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --locale es"
 
@@ -47,16 +60,26 @@ sbt "runMain inoxcal.InoxcalApp --month 3 --year 2024 --locale fr"
 
 - `--help` or `-h`: Show usage information
 - `--year-view` or `-y`: Display entire year calendar
+- `[<year>]`: Optional positional year; equivalent to `--year <year>`
 - `--month <int>`: Specify month (1-12) to display
 - `--year <int>`: Specify year to display
 - `--locale <string>` or `-l`: Set locale for internationalization (e.g., 'es' for Spanish, 'fr' for French)
+- `--starting-day <int>`: Set the first weekday, where Sunday is `0` and Saturday is `6`
+- `--week-numbers` or `-w`: Display ISO week numbers for each calendar row
+- `--color` or `-c`: Enable TamboUI-styled colors when stdout is a real terminal
 
 Notes:
 
 - `--year` on its own prints the year view, `--month` on its own uses the current year.
+- A positional year prints the year view. Supplying both a positional year and
+  `--year` is rejected.
 - `--year-view` takes precedence over `--month` when both are given.
 - Accepted range: months `1`-`12` and years `1900`-`3000`. Invalid values are
   reported on stderr and the process exits with status `1`.
+- Starting days must be in the range `0`-`6`; day names and date columns rotate
+  together. Week numbers use ISO week numbering.
+- `--color` uses TamboUI styles for headings, weekends, today, and week numbers.
+  Color is automatically omitted when stdout is not attached to a real terminal.
 - The `Calendar` class itself is not limited to that range; the range is enforced
   by the command-line interface (see `Calendar.MinYear`/`MaxYear`).
 
@@ -190,6 +213,7 @@ src/
 ├── main/
 │   ├── scala/inoxcal/
 │   │   ├── Calendar.scala              # Core calendar logic
+│   │   ├── CalendarTextRenderer.scala   # Plain and TamboUI calendar rendering
 │   │   ├── InoxcalApp.scala            # Command-line interface
 │   │   └── LocalizationManager.scala   # Internationalization support
 │   └── resources/inoxcal/
@@ -213,16 +237,20 @@ the remediation plan (`doc/ai/20260930_RemediationPlan.md`).
 ### Calendar Class
 
 - `displayMonth(year, month)`: Display a specific month
+- `displayMonth(year, month, startingDay, weekNumbers)`: Display a configured month
 - `displayCurrentMonth()`: Display current month  
 - `displayYear(year)`: Display entire year
+- `displayYear(year, startingDay, weekNumbers)`: Display a configured year
 - `displayCurrentYear()`: Display current year
 - `getDaysInMonth(year, month)`: Get number of days in a month
 - `isLeapYear(year)`: Check if a year is a leap year
 - `getDayOfWeek(year, month, day)`: Get day of week for a date
+- `monthView(year, month, startingDay, weekNumbers)`: Build structured month data
 
 The companion object exposes the range accepted by the command-line interface:
 `Calendar.MinYear`/`Calendar.MaxYear` (`1900`-`3000`) and
-`Calendar.MinMonth`/`Calendar.MaxMonth` (`1`-`12`).
+`Calendar.MinMonth`/`Calendar.MaxMonth` (`1`-`12`). Starting-day values use
+`Calendar.MinStartingDay`/`Calendar.MaxStartingDay` (`0`-`6`).
 
 ### Calendar Factory Methods
 

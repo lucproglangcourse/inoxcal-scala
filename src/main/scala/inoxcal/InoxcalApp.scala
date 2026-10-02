@@ -10,6 +10,9 @@ object InoxcalApp:
 
   @main
   def inoxcal(
+    @arg(name = "year", positional = true, doc = "Year to display")
+    positionalYear: Option[Int] = None,
+
     @arg(name = "month", doc = "Month (1-12) to display")
     month: Option[Int] = None,
 
@@ -22,37 +25,55 @@ object InoxcalApp:
     @arg(short = 'l', name = "locale", doc = "Set locale (e.g., 'es' for Spanish, 'fr' for French)")
     locale: Option[String] = None,
 
+    @arg(name = "starting-day", doc = "First weekday (0=Sunday through 6=Saturday)")
+    startingDay: Int = Calendar.MinStartingDay,
+
+    @arg(short = 'c', name = "color", doc = "Enable colored output")
+    color: Flag = Flag(),
+
+    @arg(short = 'w', name = "week-numbers", doc = "Show ISO week numbers")
+    weekNumbers: Flag = Flag(),
+
     @arg(short = 'h', name = "help", doc = "Show this help message")
     help: Flag = Flag()
   ): Unit =
     // Build a single calendar, localized when a locale was requested
     val calendar = locale.fold(new Calendar)(Calendar.withLanguage)
     val l10n = calendar.getLocalizationManager
+    val effectiveYear = positionalYear.orElse(year)
+    val outputColor = color.value && System.console() != null
 
     val result: Either[String, String] =
       if help.value then
         Right(localizedHelp(l10n))
-      else if yearView.value then
-        val targetYear = year.getOrElse(LocalDate.now().getYear)
-        validateYear(targetYear, l10n).map(_ => calendar.displayYear(targetYear))
+      else if positionalYear.isDefined && year.isDefined then
+        Left(l10n.getConflictingYearError)
       else
-        (month, year) match
-          case (Some(m), Some(y)) =>
-            for
-              _ <- validateMonth(m, l10n)
-              _ <- validateYear(y, l10n)
-            yield calendar.displayMonth(y, m)
+        for
+          _ <- validateStartingDay(startingDay, l10n)
+          result <-
+            if yearView.value then
+              val targetYear = effectiveYear.getOrElse(LocalDate.now().getYear)
+              validateYear(targetYear, l10n).map(_ => renderYear(calendar, targetYear, startingDay, weekNumbers.value, outputColor))
+            else
+              (month, effectiveYear) match
+                case (Some(m), Some(y)) =>
+                  for
+                    _ <- validateMonth(m, l10n)
+                    _ <- validateYear(y, l10n)
+                  yield renderMonth(calendar, y, m, startingDay, weekNumbers.value, outputColor)
 
-          case (Some(m), None) =>
-            val currentYear = LocalDate.now().getYear
-            validateMonth(m, l10n).map(_ => calendar.displayMonth(currentYear, m))
+                case (Some(m), None) =>
+                  val currentYear = LocalDate.now().getYear
+                  validateMonth(m, l10n).map(_ => renderMonth(calendar, currentYear, m, startingDay, weekNumbers.value, outputColor))
 
-          case (None, Some(y)) =>
-            validateYear(y, l10n).map(_ => calendar.displayYear(y))
+                case (None, Some(y)) =>
+                  validateYear(y, l10n).map(_ => renderYear(calendar, y, startingDay, weekNumbers.value, outputColor))
 
-          case (None, None) =>
-            // No arguments - show the current month
-            Right(calendar.displayCurrentMonth())
+                case (None, None) =>
+                  val now = LocalDate.now()
+                  Right(renderMonth(calendar, now.getYear, now.getMonthValue, startingDay, weekNumbers.value, outputColor))
+        yield result
 
     result match
       case Right(text) => println(text)
@@ -86,6 +107,24 @@ object InoxcalApp:
       Left(l10n.getInvalidYearError(year))
     else
       Right(())
+
+  def validateStartingDay(startingDay: Int, l10n: LocalizationManager): Either[String, Unit] =
+    if startingDay < Calendar.MinStartingDay || startingDay > Calendar.MaxStartingDay then
+      Left(l10n.getInvalidStartingDayError(startingDay))
+    else
+      Right(())
+
+  def validateYearSources(positionalYear: Option[Int], namedYear: Option[Int], l10n: LocalizationManager): Either[String, Unit] =
+    if positionalYear.isDefined && namedYear.isDefined then Left(l10n.getConflictingYearError) else Right(())
+
+  private def renderMonth(calendar: Calendar, year: Int, month: Int, startingDay: Int, weekNumbers: Boolean, color: Boolean): String =
+    val view = calendar.monthView(year, month, startingDay, weekNumbers)
+    if color then CalendarTextRenderer.renderMonthColored(view) else CalendarTextRenderer.renderMonth(view)
+
+  private def renderYear(calendar: Calendar, year: Int, startingDay: Int, weekNumbers: Boolean, color: Boolean): String =
+    val header = s"                             $year"
+    val months = (1 to 12).map(month => renderMonth(calendar, year, month, startingDay, weekNumbers, color)).mkString("\n\n")
+    s"$header\n$months"
 
   def main(args: Array[String]): Unit =
     val arguments = args.toIndexedSeq

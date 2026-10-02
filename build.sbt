@@ -4,7 +4,8 @@ version := "0.1"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-  "com.lihaoyi" %% "mainargs" % "0.7.6"
+  "com.lihaoyi" %% "mainargs" % "0.7.6",
+  "dev.tamboui" % "tamboui-core" % "0.5.0"
 )
 
 // Main class for running the application
