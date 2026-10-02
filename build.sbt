@@ -2,6 +2,19 @@ name := "inoxcal"
 
 version := "0.1.0"
 
+// Scala version and compiler policy.
+scalaVersion := "3.8.4"
+
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-Wvalue-discard",
+  "-language:strictEquality",
+  "-Yexplicit-nulls",
+  "-Wsafe-init"
+)
+
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
   "com.lihaoyi" %% "mainargs" % "0.7.6",
