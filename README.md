@@ -2,7 +2,7 @@
 
 [![Scala CI (main)](https://github.com/lucproglangcourse/inoxcal-scala/actions/workflows/scala.yml/badge.svg?branch=main)](https://github.com/lucproglangcourse/inoxcal-scala/actions/workflows/scala.yml?query=branch%3Amain)
 [![Latest GitHub release](https://img.shields.io/github/v/release/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/releases/latest)
-[![Codecov coverage (main)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala/branch/main/graph/badge.svg)](https://app.codecov.io/gh/lucproglangcourse/inoxcal-scala/tree/main)
+[![Codecov coverage (main)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala/graph/badge.svg?token=cc41rooqor)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala)
 [![License: MIT](https://img.shields.io/github/license/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/blob/main/LICENSE)
 
 A command-line calendar utility similar to `ncal`, written in Scala. The name nods
