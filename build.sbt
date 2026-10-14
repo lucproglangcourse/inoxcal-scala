@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "com.lihaoyi" %% "mainargs" % "0.7.6",
-      "dev.tamboui" % "tamboui-core" % "0.5.0"
+      "dev.tamboui" % "tamboui-core" % "0.6.0"
     ),
 
     // Main class and distribution packaging.
