@@ -4,7 +4,7 @@
 [![Latest GitHub release](https://img.shields.io/github/v/release/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/releases/latest)
 [![Codecov coverage (main)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala/graph/badge.svg?token=cc41rooqor)](https://codecov.io/gh/lucproglangcourse/inoxcal-scala)
 [![License: MIT](https://img.shields.io/github/license/lucproglangcourse/inoxcal-scala)](https://github.com/lucproglangcourse/inoxcal-scala/blob/main/LICENSE)
-[![Scala Steward: enrollment pending](https://img.shields.io/badge/Scala_Steward-enrollment_pending-orange)](https://github.com/VirtusLab/scala-steward-repos/pull/691)
+[![Scala Steward: helping](https://img.shields.io/badge/Scala_Steward-helping-blue.svg](https://github.com/VirtusLab/scala-steward-repos/pull/691)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lucproglangcourse/inoxcal-scala/badge)](https://scorecard.dev/viewer/?uri=github.com/lucproglangcourse/inoxcal-scala)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5f40956ec89b422a9d438f800f4ab1ae)](https://app.codacy.com/gh/lucproglangcourse/inoxcal-scala/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
