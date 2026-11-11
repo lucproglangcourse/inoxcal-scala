@@ -8,7 +8,7 @@ lazy val root = (project in file("."))
   .settings(
     // Project metadata and Scala compiler policy.
     name := "inoxcal",
-    scalaVersion := "3.8.4",
+    scalaVersion := "3.10.1",
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
